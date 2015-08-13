@@ -34,34 +34,64 @@ Database.prototype.getByDate = function(date) {
 	});
 };
 
+Exif = function() {
+	this.ExifImage = require('exif').ExifImage;
+};
+
+Exif.prototype.getDate = function(file, callback) {
+	try {
+		new this.ExifImage({image : file}, function (error, exifData) {
+			if (error) {
+				console.log('Error: ' + error.message);
+			} else {
+				console.log(exifData); // Do something with your data!
+				var regexp = exifData.exif.CreateDate.match(/(\d+):(\d+):(\d+)/);
+				callback(regexp[1] + '-' + regexp[2] + '-' + regexp[3]);
+			}
+		});
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
+}
+
 var Apl = function() {
-	var count = 0;
-	var db = new Database();
+	this.db = new Database();
+	this.exif = new Exif();
 
-	app.get('/', function (req, res) {
-		switch(count) {
-		case 0:
-			db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
-			db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
-			db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-31');
-			break;
-		case 1:
-			db.getByDate('2015-08-31');
-			break;
-		case 2:
-			db.getByDate('2015-08-30');
-			break;
-		}
-		++ count;
-
-		res.send('Hello World! ' + req.query.myquery);
-	});
-	
 	var server = app.listen(3000, function () {
 		var host = server.address().address;
 		var port = server.address().port;
 		console.log('Example app listening at http://%s:%s', host, port);
 	});
 };
+Apl.prototype.bind = function() {
+	var count = 0;	
 
-new Apl();
+	app.get('/db', function (req, res) {
+		switch(count) {
+		case 0:
+			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
+			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
+			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-31');
+			break;
+		case 1:
+			this.db.getByDate('2015-08-31');
+			break;
+		case 2:
+			this.db.getByDate('2015-08-30');
+			break;
+		}
+		++ count;
+		
+		res.send('Hello World! ' + req.query.myquery);
+	}.bind(this));
+
+	app.get('/exif', function (req, res) {
+		this.exif.getDate('sample.jpg', function(date) {
+			res.send('Exif! ' + date);
+		});
+	}.bind(this));
+};
+
+var apl = new Apl();
+apl.bind();
