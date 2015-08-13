@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var fs = require('fs');
 var sqlite3 = require('sqlite3').verbose();
-
+var process = require('child_process');
 
 var Database = function() {
 	//this.dbFileName = 'photo_manager.db';
@@ -37,7 +37,6 @@ Database.prototype.getByDate = function(date) {
 Exif = function() {
 	this.ExifImage = require('exif').ExifImage;
 };
-
 Exif.prototype.getDate = function(file, callback) {
 	try {
 		new this.ExifImage({image : file}, function (error, exifData) {
@@ -55,14 +54,36 @@ Exif.prototype.getDate = function(file, callback) {
 }
 
 var Apl = function() {
+	this.savedRoot = '/Volumes/data/test/savedImage/';
+	this.importRoot = '/Volumes/data/test/originalImage/originalImage/';
+
+	this.originalImageDir = this.savedRoot + '/orig/';
+	this.largeImageDir = this.savedRoot + '/large/';
+	this.thumbImageDir = this.savedRoot + '/thumb/';
+
 	this.db = new Database();
 	this.exif = new Exif();
+
+	this._mkdir(this.savedRoot);
+	this._mkdir(this.originalImageDir);
+	this._mkdir(this.largeImageDir);
+	this._mkdir(this.thumbImageDir);
 
 	var server = app.listen(3000, function () {
 		var host = server.address().address;
 		var port = server.address().port;
 		console.log('Example app listening at http://%s:%s', host, port);
 	});
+};
+Apl.prototype._mkdir = function(path) {
+	if (! fs.existsSync(path)) {
+		fs.mkdirSync(path, 0755);
+	}
+};
+Apl.prototype.createDateDir = function(date) {
+	this._mkdir(this.originalImageDir + date);
+	this._mkdir(this.largeImageDir + date);
+	this._mkdir(this.thumbImageDir + date);
 };
 Apl.prototype.bind = function() {
 	var count = 0;	
@@ -89,7 +110,14 @@ Apl.prototype.bind = function() {
 	app.get('/exif', function (req, res) {
 		this.exif.getDate('sample.jpg', function(date) {
 			res.send('Exif! ' + date);
-		});
+			
+			this.createDateDir(date);
+		}.bind(this));
+	}.bind(this));
+
+	app.get('/spawn', function (req, res) {
+		process.spawnSync('touch', ['hoge2']);
+		res.send('spawn! ');
 	}.bind(this));
 };
 
