@@ -70,7 +70,7 @@ Exif.prototype.getImageSize = function(file, callback) {
 
 var Apl = function() {
 	this.savedRoot = '/Volumes/data/test/savedImage/';
-	this.importRoot = '/Volumes/data/test/originalImage/originalImage/';
+	this.importRoot = '/Volumes/data/test/originalImage/';
 
 	this.originalImageDir = this.savedRoot + '/orig/';
 	this.largeImageDir = this.savedRoot + '/large/';
@@ -99,6 +99,22 @@ Apl.prototype.createDateDir = function(date) {
 	this._mkdir(this.originalImageDir + date);
 	this._mkdir(this.largeImageDir + date);
 	this._mkdir(this.thumbImageDir + date);
+};
+
+Apl.prototype.importImage = function() {
+	fs.readdirSync(this.importRoot).forEach(function(file) {
+		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
+			return;
+		}
+
+		console.log(file);
+
+		this.exif.getDate(this.importRoot + file, function(date) {
+			// create directory to save image
+			this.createDateDir(date);
+
+		}.bind(this));
+	}.bind(this));
 };
 Apl.prototype.bind = function() {
 	var count = 0;	
@@ -157,4 +173,5 @@ Apl.prototype.bind = function() {
 };
 
 var apl = new Apl();
-apl.bind();
+//apl.bind();
+apl.importImage();
