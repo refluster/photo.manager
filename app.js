@@ -1,4 +1,5 @@
 var express = require('express');
+var path = require('path');
 var app = express();
 var fs = require('fs');
 var sqlite3 = require('sqlite3').verbose();
@@ -138,7 +139,24 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/spawn', function (req, res) {
-		process.spawnSync('touch', ['hoge2']);
+		var w = 4896;
+		var h = 3672;
+		var options = [];
+		var originalImage = 'sample.jpg';
+		var largeImage = path.basename(originalImage, '.jpg') + '-large.jpg'
+		var thumbImage = path.basename(originalImage, '.jpg') + '-thumb.jpg'
+		
+		options.push(originalImage);
+		options.push('-resize');
+		if (w > h) {
+			options.push('800x');
+		} else {
+			options.push('x800');
+		}
+		options.push(largeImage);
+		
+		process.spawnSync('convert', options);
+
 		res.send('spawn! ');
 	}.bind(this));
 };
