@@ -9,16 +9,18 @@ var Database = function() {
 	this.dbFileName = 'photo_manager.db';
 	//this.dbFileName = ':memory:';
 
-	// create db if not exist
-	/*
-	if (! fs.existsSync(this.dbFileName)) {
-		var db = new sqlite3.Database(this.dbFileName);
-		db.run("CREATE TABLE photoManager (fileOrig TEXT, fileLarge TEXT, fileThumb TEXT, date TEXT)");
-		db.close();
-	}
-	*/
 	this.db = new sqlite3.Database(this.dbFileName);
-	this.db.exec("CREATE TABLE photoManager (fileOrig TEXT, fileLarge TEXT, fileThumb TEXT, date TEXT)");
+
+	// create table if not exist
+	this.db.get(
+		"SELECT count(*) AS exist FROM sqlite_master WHERE TYPE='table' AND NAME='photoManager'",
+		function(e, row) {
+			if (row.exist == 0) {
+				console.log('create');
+				this.db.exec(
+					"CREATE TABLE photoManager (fileOrig TEXT, fileLarge TEXT, fileThumb TEXT, date TEXT)");
+			}
+		}.bind(this));
 };
 Database.prototype.insert = function(fileOrig, fileLarge, fileThumb, date) {
 	console.log(this.db);
@@ -191,6 +193,8 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 };
 
-var apl = new Apl();
+//var apl = new Apl();
 //apl.bind();
-apl.importImage();
+//apl.importImage();
+db = new Database();
+db.
