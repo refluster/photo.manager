@@ -43,7 +43,7 @@ Exif.prototype.getDate = function(file, callback) {
 			if (error) {
 				console.log('Error: ' + error.message);
 			} else {
-				console.log(exifData); // Do something with your data!
+				//console.log(exifData);
 				var regexp = exifData.exif.CreateDate.match(/(\d+):(\d+):(\d+)/);
 				callback(regexp[1] + '-' + regexp[2] + '-' + regexp[3]);
 			}
@@ -52,6 +52,20 @@ Exif.prototype.getDate = function(file, callback) {
 		console.log('Error: ' + error.message);
 	}
 }
+Exif.prototype.getImageSize = function(file, callback) {
+	try {
+		new this.ExifImage({image : file}, function (error, exifData) {
+			if (error) {
+				console.log('Error: ' + error.message);
+			} else {
+				callback(exifData.exif.ExifImageWidth,
+						 exifData.exif.ExifImageHeight);
+			}
+		});
+	} catch (error) {
+		console.log('Error: ' + error.message);
+	}
+};	
 
 var Apl = function() {
 	this.savedRoot = '/Volumes/data/test/savedImage/';
@@ -108,11 +122,19 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/exif', function (req, res) {
-		this.exif.getDate('sample.jpg', function(date) {
-			res.send('Exif! ' + date);
-			
-			this.createDateDir(date);
-		}.bind(this));
+		switch(count) {
+		case 0:
+			this.exif.getDate('sample.jpg', function(date) {
+				res.send('Exif! ' + date);
+				
+				this.createDateDir(date);
+			}.bind(this));
+		case 1:
+			this.exif.getImageSize('sample.jpg', function(w, h) {
+				res.send('Exif! 1 ' + w + ' ' + h );
+			}.bind(this));
+		}
+		++ count;
 	}.bind(this));
 
 	app.get('/spawn', function (req, res) {
