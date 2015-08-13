@@ -36,6 +36,11 @@ Database.prototype.getByDate = function(date) {
 		console.log('- ' + row.fileOrig);
 	});
 };
+Database.prototype.getAll = function(callback) {
+	this.db.all("SELECT * FROM photoManager", function(err, rows) {
+		callback(rows);
+	});
+};
 
 Exif = function() {
 	this.ExifImage = require('exif').ExifImage;
@@ -197,4 +202,4 @@ Apl.prototype.bind = function() {
 //apl.bind();
 //apl.importImage();
 db = new Database();
-db.
+db.getAll();
