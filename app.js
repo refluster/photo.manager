@@ -139,20 +139,15 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/spawn', function (req, res) {
-		var w = 4896;
-		var h = 3672;
-		var options = [];
 		var originalImage = 'sample.jpg';
 		var largeImage = path.basename(originalImage, '.jpg') + '-large.jpg'
 		var thumbImage = path.basename(originalImage, '.jpg') + '-thumb.jpg'
+		var options = [];
 		
+		// create thumbnail
 		options.push(originalImage);
 		options.push('-resize');
-		if (w > h) {
-			options.push('800x');
-		} else {
-			options.push('x800');
-		}
+		options.push('800x800');
 		options.push(largeImage);
 		
 		process.spawnSync('convert', options);
