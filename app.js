@@ -107,12 +107,16 @@ Apl.prototype.importImage = function() {
 			return;
 		}
 
-		console.log(file);
+		var sourceImage = this.importRoot + file;
+		var originalImage = this.originalImageDir + file;
+		var largeImage = this.largeImageDir + path.basename(file, path.extname(file)) + '-large.jpg';
+		var thumbImage = this.thumbImageDir + path.basename(file, path.extname(file)) + '-thumb.jpg';
 
-		this.exif.getDate(this.importRoot + file, function(date) {
+		this.exif.getDate(sourceImage, function(date) {
 			// create directory to save image
 			this.createDateDir(date);
 
+			console.log({s: sourceImage, o: originalImage, l: largeImage, t: thumbImage});
 		}.bind(this));
 	}.bind(this));
 };
