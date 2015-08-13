@@ -6,8 +6,8 @@ var sqlite3 = require('sqlite3').verbose();
 var process = require('child_process');
 
 var Database = function() {
-	//this.dbFileName = 'photo_manager.db';
-	this.dbFileName = ':memory:';
+	this.dbFileName = 'photo_manager.db';
+	//this.dbFileName = ':memory:';
 
 	// create db if not exist
 	/*
@@ -108,15 +108,30 @@ Apl.prototype.importImage = function() {
 		}
 
 		var sourceImage = this.importRoot + file;
-		var originalImage = this.originalImageDir + file;
-		var largeImage = this.largeImageDir + path.basename(file, path.extname(file)) + '-large.jpg';
-		var thumbImage = this.thumbImageDir + path.basename(file, path.extname(file)) + '-thumb.jpg';
 
 		this.exif.getDate(sourceImage, function(date) {
+			var originalImage = this.originalImageDir + date + '/' + file;
+			var largeImage = this.largeImageDir + date + '/' +
+				path.basename(file, path.extname(file)) + '-large.jpg';
+			var thumbImage = this.thumbImageDir + date + '/' +
+				path.basename(file, path.extname(file)) + '-thumb.jpg';
+
 			// create directory to save image
 			this.createDateDir(date);
-
+			
 			console.log({s: sourceImage, o: originalImage, l: largeImage, t: thumbImage});
+
+			// save original image
+			process.spawnSync('cp', [sourceImage, originalImage]);
+
+			// save large image
+			process.spawnSync('convert', [sourceImage, '-resize', '800x800', largeImage]);
+
+			// save thumbnail image
+			process.spawnSync('convert', [sourceImage, '-resize', '120x120', '-gravity', 'Center',
+										  '-crop', '80x80-0-0', thumbImage]);
+			
+			this.db.insert(originalImage, largeImage, thumbImage, date);
 		}.bind(this));
 	}.bind(this));
 };
