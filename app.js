@@ -76,8 +76,8 @@ Exif.prototype.getImageSize = function(file, callback) {
 };	
 
 var Apl = function() {
-	this.savedRoot = '/Volumes/data/test/savedImage/';
-	this.importRoot = '/Volumes/data/test/originalImage/';
+	this.savedRoot = 'public/savedImage/';
+	this.importRoot = 'public/sourceImage/';
 
 	this.originalImageDir = this.savedRoot + '/orig/';
 	this.largeImageDir = this.savedRoot + '/large/';
@@ -137,13 +137,18 @@ Apl.prototype.importImage = function() {
 			// save thumbnail image
 			process.spawnSync('convert', [sourceImage, '-resize', '120x120', '-gravity', 'Center',
 										  '-crop', '80x80-0-0', thumbImage]);
-			
-			this.db.insert(originalImage, largeImage, thumbImage, date);
+
+			this.db.insert(originalImage.replace(/^public\//,""),
+						   largeImage.replace(/^public\//,""),
+						   thumbImage.replace(/^public\//,""),
+						   date);
 		}.bind(this));
 	}.bind(this));
 };
 Apl.prototype.bind = function() {
 	var count = 0;	
+
+	app.use(express.static('public'));
 
 	app.get('/db', function (req, res) {
 		switch(count) {
@@ -211,7 +216,7 @@ Apl.prototype.bind = function() {
 };
 
 var apl = new Apl();
-apl.bind();
-//apl.importImage();
+//apl.bind();
+apl.importImage();
 //db = new Database();
 //db.getAll();
