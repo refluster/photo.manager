@@ -156,6 +156,9 @@ Apl.prototype.bind = function() {
 		});
 	}.bind(this));
 
+	app.get('/import', function (req, res) {
+		apl.importImage();
+	}.bind(this));
 };
 
 var apl = new Apl();
