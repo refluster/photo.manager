@@ -170,14 +170,9 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/db2', function (req, res) {
-		switch(count) {
-		case 0:
-			this.db.getAll(function(rows) {
-				res.send(JSON.stringify(rows));
-			});
-			break;
-		}
-		++ count;
+		this.db.getAll(function(rows) {
+			res.send(JSON.stringify(rows));
+		});
 	}.bind(this));
 
 	app.get('/exif', function (req, res) {
@@ -216,7 +211,7 @@ Apl.prototype.bind = function() {
 };
 
 var apl = new Apl();
-//apl.bind();
-apl.importImage();
+apl.bind();
+//apl.importImage();
 //db = new Database();
 //db.getAll();
