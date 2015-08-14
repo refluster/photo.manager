@@ -86,11 +86,6 @@ var Apl = function() {
 	this.db = new Database();
 	this.exif = new Exif();
 
-	this._mkdir(this.savedRoot);
-	this._mkdir(this.originalImageDir);
-	this._mkdir(this.largeImageDir);
-	this._mkdir(this.thumbImageDir);
-
 	var server = app.listen(3000, function () {
 		var host = server.address().address;
 		var port = server.address().port;
@@ -109,6 +104,11 @@ Apl.prototype.createDateDir = function(date) {
 };
 
 Apl.prototype.importImage = function() {
+	this._mkdir(this.savedRoot);
+	this._mkdir(this.originalImageDir);
+	this._mkdir(this.largeImageDir);
+	this._mkdir(this.thumbImageDir);
+
 	fs.readdirSync(this.importRoot).forEach(function(file) {
 		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
 			return;
@@ -164,6 +164,17 @@ Apl.prototype.bind = function() {
 		res.send('Hello World! ' + req.query.myquery);
 	}.bind(this));
 
+	app.get('/db2', function (req, res) {
+		switch(count) {
+		case 0:
+			this.db.getAll(function(rows) {
+				res.send(JSON.stringify(rows));
+			});
+			break;
+		}
+		++ count;
+	}.bind(this));
+
 	app.get('/exif', function (req, res) {
 		switch(count) {
 		case 0:
@@ -196,10 +207,11 @@ Apl.prototype.bind = function() {
 
 		res.send('spawn! ');
 	}.bind(this));
+
 };
 
-//var apl = new Apl();
-//apl.bind();
+var apl = new Apl();
+apl.bind();
 //apl.importImage();
-db = new Database();
-db.getAll();
+//db = new Database();
+//db.getAll();
