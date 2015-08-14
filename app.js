@@ -169,7 +169,7 @@ Apl.prototype.bind = function() {
 		res.send('Hello World! ' + req.query.myquery);
 	}.bind(this));
 
-	app.get('/db2', function (req, res) {
+	app.get('/db.json', function (req, res) {
 		this.db.getAll(function(rows) {
 			res.send(JSON.stringify(rows));
 		});
