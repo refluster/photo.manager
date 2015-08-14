@@ -150,62 +150,10 @@ Apl.prototype.bind = function() {
 
 	app.use(express.static('public'));
 
-	app.get('/db', function (req, res) {
-		switch(count) {
-		case 0:
-			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
-			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-30');
-			this.db.insert('f.jpg', 'fl.jpg', 'fthumb.jpg', '2015-08-31');
-			break;
-		case 1:
-			this.db.getByDate('2015-08-31');
-			break;
-		case 2:
-			this.db.getByDate('2015-08-30');
-			break;
-		}
-		++ count;
-		
-		res.send('Hello World! ' + req.query.myquery);
-	}.bind(this));
-
 	app.get('/db.json', function (req, res) {
 		this.db.getAll(function(rows) {
 			res.send(JSON.stringify(rows));
 		});
-	}.bind(this));
-
-	app.get('/exif', function (req, res) {
-		switch(count) {
-		case 0:
-			this.exif.getDate('sample.jpg', function(date) {
-				res.send('Exif! ' + date);
-				
-				this.createDateDir(date);
-			}.bind(this));
-		case 1:
-			this.exif.getImageSize('sample.jpg', function(w, h) {
-				res.send('Exif! 1 ' + w + ' ' + h );
-			}.bind(this));
-		}
-		++ count;
-	}.bind(this));
-
-	app.get('/spawn', function (req, res) {
-		var originalImage = 'sample.jpg';
-		var largeImage = path.basename(originalImage, '.jpg') + '-large.jpg'
-		var thumbImage = path.basename(originalImage, '.jpg') + '-thumb.jpg'
-		var options = [];
-		
-		// create thumbnail
-		options.push(originalImage);
-		options.push('-resize');
-		options.push('800x800');
-		options.push(largeImage);
-		
-		process.spawnSync('convert', options);
-
-		res.send('spawn! ');
 	}.bind(this));
 
 };
