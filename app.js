@@ -3,7 +3,7 @@ var path = require('path');
 var app = express();
 var fs = require('fs');
 var sqlite3 = require('sqlite3').verbose();
-var process = require('child_process');
+var child_process = require('child_process');
 
 var Database = function() {
 	this.dbFileName = 'photo_manager.db';
@@ -102,7 +102,6 @@ Apl.prototype.createDateDir = function(date) {
 	this._mkdir(this.largeImageDir + date);
 	this._mkdir(this.thumbImageDir + date);
 };
-
 Apl.prototype.importImage = function() {
 	this._mkdir(this.savedRoot);
 	this._mkdir(this.originalImageDir);
@@ -129,14 +128,14 @@ Apl.prototype.importImage = function() {
 			console.log({s: sourceImage, o: originalImage, l: largeImage, t: thumbImage});
 
 			// save original image
-			process.spawnSync('cp', [sourceImage, originalImage]);
+			child_process.spawnSync('cp', [sourceImage, originalImage]);
 
 			// save large image
-			process.spawnSync('convert', [sourceImage, '-resize', '800x800', largeImage]);
+			child_process.spawnSync('convert', [sourceImage, '-resize', '800x800', largeImage]);
 
 			// save thumbnail image
-			process.spawnSync('convert', [sourceImage, '-resize', '120x120', '-gravity', 'Center',
-										  '-crop', '80x80-0-0', thumbImage]);
+			child_process.spawnSync('convert', [sourceImage, '-resize', '120x120', '-gravity', 'Center',
+												'-crop', '80x80-0-0', thumbImage]);
 
 			this.db.insert(originalImage.replace(/^public\//,""),
 						   largeImage.replace(/^public\//,""),
