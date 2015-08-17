@@ -5,9 +5,8 @@ var fs = require('fs');
 var sqlite3 = require('sqlite3').verbose();
 var child_process = require('child_process');
 
-var Database = function() {
-	this.dbFileName = 'photo_manager.db';
-	//this.dbFileName = ':memory:';
+var Database = function(dbFile) {
+	this.dbFileName = dbFile;
 
 	this.db = new sqlite3.Database(this.dbFileName);
 
@@ -78,14 +77,21 @@ Exif.prototype.getImageSize = function(file, callback) {
 var Apl = function() {
 	this.savedRoot = 'public/savedImage/';
 	this.importRoot = 'public/sourceImage/';
-
 	this.originalImageDir = this.savedRoot + '/orig/';
 	this.largeImageDir = this.savedRoot + '/large/';
 	this.thumbImageDir = this.savedRoot + '/thumb/';
 
+	this._mkdir(this.savedRoot);
+	this._mkdir(this.originalImageDir);
+	this._mkdir(this.largeImageDir);
+	this._mkdir(this.thumbImageDir);
+
+	this.dbFileName = this.savedRoot + 'photo_manager.db';
+	//this.dbFileName = ':memory:';
+
 	this.status = 'standby';
 
-	this.db = new Database();
+	this.db = new Database(this.dbFileName);
 	this.exif = new Exif();
 
 	var server = app.listen(3000, function () {
@@ -110,11 +116,6 @@ Apl.prototype.importImage = function() {
 	}
 
 	this.status = 'processing';
-
-	this._mkdir(this.savedRoot);
-	this._mkdir(this.originalImageDir);
-	this._mkdir(this.largeImageDir);
-	this._mkdir(this.thumbImageDir);
 
 	fs.readdirSync(this.importRoot).forEach(function(file) {
 		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
@@ -166,12 +167,12 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/import', function (req, res) {
-		apl.importImage();
+		this.importImage();
 	}.bind(this));
 
 	app.get('/status', function (req, res) {
 		res.send(this.status);
-	});
+	}.bind(this));
 };
 
 
