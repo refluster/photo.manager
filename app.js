@@ -49,6 +49,7 @@ Exif.prototype.getDate = function(file, callback) {
 		new this.ExifImage({image : file}, function (error, exifData) {
 			if (error) {
 				console.log('Error: ' + error.message);
+				callback('2015' + '-' + '01' + '-' + '01');
 			} else {
 				//console.log(exifData);
 				var regexp = exifData.exif.CreateDate.match(/(\d+):(\d+):(\d+)/);
