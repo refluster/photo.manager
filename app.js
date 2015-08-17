@@ -83,7 +83,7 @@ var Apl = function() {
 	this.largeImageDir = this.savedRoot + '/large/';
 	this.thumbImageDir = this.savedRoot + '/thumb/';
 
-	this.importStatus = 'standby';
+	this.status = 'standby';
 
 	this.db = new Database();
 	this.exif = new Exif();
@@ -105,7 +105,11 @@ Apl.prototype.createDateDir = function(date) {
 	this._mkdir(this.thumbImageDir + date);
 };
 Apl.prototype.importImage = function() {
-	this.importStatus = 'processing';
+	if (this.status != 'standby') {
+		return;
+	}
+
+	this.status = 'processing';
 
 	this._mkdir(this.savedRoot);
 	this._mkdir(this.originalImageDir);
@@ -148,7 +152,7 @@ Apl.prototype.importImage = function() {
 		}.bind(this));
 	}.bind(this));
 
-	this.importStatus = 'standby';
+	this.status = 'standby';
 };
 Apl.prototype.bind = function() {
 	var count = 0;	
@@ -165,9 +169,9 @@ Apl.prototype.bind = function() {
 		apl.importImage();
 	}.bind(this));
 
-	app.get('/import-status', function (req, res) {
-		res.send(this.importStatus);
-	}.bind(this));
+	app.get('/status', function (req, res) {
+		res.send(this.status);
+	});
 };
 
 
