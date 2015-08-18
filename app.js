@@ -49,11 +49,13 @@ Exif.prototype.getDate = function(file, callback) {
 		new this.ExifImage({image : file}, function (error, exifData) {
 			if (error) {
 				console.log('Error: ' + error.message);
-				callback('2015' + '-' + '01' + '-' + '01');
 			} else {
-				//console.log(exifData);
-				var regexp = exifData.exif.CreateDate.match(/(\d+):(\d+):(\d+)/);
-				callback(regexp[1] + '-' + regexp[2] + '-' + regexp[3]);
+				if (exifData.exif.CreateDate == undefined) {
+					callback('2015-01-01');
+				} else {
+					var regexp = exifData.exif.CreateDate.match(/(\d+):(\d+):(\d+)/);
+					callback(regexp[1] + '-' + regexp[2] + '-' + regexp[3]);
+				}
 			}
 		});
 	} catch (error) {
@@ -61,6 +63,7 @@ Exif.prototype.getDate = function(file, callback) {
 	}
 }
 Exif.prototype.getImageSize = function(file, callback) {
+
 	try {
 		new this.ExifImage({image : file}, function (error, exifData) {
 			if (error) {
@@ -168,6 +171,8 @@ Apl.prototype.bind = function() {
 	}.bind(this));
 
 	app.get('/import', function (req, res) {
+		res.send("");
+		console.log('importimage');
 		this.importImage();
 	}.bind(this));
 
