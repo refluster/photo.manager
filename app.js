@@ -104,14 +104,12 @@ var Apl = function() {
 		var port = server.address().port;
 
 		var sseServe = new sse(server);
+		console.log('-- sse listen --');
 		sseServe.on('connection', function(client) {
-			setInterval(function() {
-				console.log('send');
-				client.send('hi there!');
-			}, 1000);
-		});
+			this.sseClient = client;
+		}.bind(this));
 		console.log('Example app listening at http://%s:%s', host, port);
-	});
+	}.bind(this));
 };
 Apl.prototype._mkdir = function(path) {
 	if (! fs.existsSync(path)) {
@@ -130,7 +128,7 @@ Apl.prototype.importImage = function() {
 
 	this.status = 'processing';
 
-	fs.readdirSync(this.importRoot).forEach(function(file) {
+	fs.readdirSync(this.importRoot).forEach(function(file, idx) {
 		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
 			return;
 		}
@@ -163,6 +161,10 @@ Apl.prototype.importImage = function() {
 						   largeImage.replace(/^public\//,""),
 						   thumbImage.replace(/^public\//,""),
 						   date);
+
+			if (this.sseClient != undefined) {
+				this.sseClient.send(idx + ' - complete');
+			}
 		}.bind(this));
 	}.bind(this));
 
@@ -188,23 +190,7 @@ Apl.prototype.bind = function() {
 	app.get('/status', function(req, res) {
 		res.send(this.status);
 	}.bind(this));
-
-	app.get('sse', function(req, res) {
-		html = '<script>window.onload = function() {' +
-			'console.log("set sse");' +
-			'var es = new EventSource("/sse");' +
-			'es.onmessage = function (event) {' +
-			'console.log(event.data);' +
-			'};' +
-			'};</script>';
-		res.send(html);
-	});
 };
-
 
 var apl = new Apl();
 apl.bind();
-
-//apl.importImage();
-//db = new Database();
-//db.getAll();
