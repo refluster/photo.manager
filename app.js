@@ -94,8 +94,6 @@ var Apl = function() {
 	this.dbFileName = this.savedRoot + 'photo_manager.db';
 	//this.dbFileName = ':memory:';
 
-	this.status = 'standby';
-
 	this.db = new Database(this.dbFileName);
 	this.exif = new Exif();
 
@@ -122,12 +120,6 @@ Apl.prototype.createDateDir = function(date) {
 	this._mkdir(this.thumbImageDir + date);
 };
 Apl.prototype.importImage = function() {
-	if (this.status != 'standby') {
-		return;
-	}
-
-	this.status = 'processing';
-
 	fs.readdirSync(this.importRoot).forEach(function(file, idx) {
 		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
 			return;
@@ -167,8 +159,6 @@ Apl.prototype.importImage = function() {
 			}
 		}.bind(this));
 	}.bind(this));
-
-	this.status = 'standby';
 };
 Apl.prototype.bind = function() {
 	var count = 0;	
@@ -185,10 +175,6 @@ Apl.prototype.bind = function() {
 		res.send("");
 		console.log('importimage');
 		this.importImage();
-	}.bind(this));
-
-	app.get('/status', function(req, res) {
-		res.send(this.status);
 	}.bind(this));
 };
 
