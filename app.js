@@ -160,7 +160,8 @@ Apl.prototype.importImage = function() {
 						   date);
 
 			if (this.sseClient != undefined) {
-				this.sseClient.send(idx + ' / ' + files.length + ' - complete');
+				this.sseClient.send(JSON.stringify(
+					{status: 'importing', complete: idx, total: files.length}));
 			}
 		}.bind(this));
 	}.bind(this));
