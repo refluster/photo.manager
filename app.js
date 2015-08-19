@@ -120,11 +120,16 @@ Apl.prototype.createDateDir = function(date) {
 	this._mkdir(this.thumbImageDir + date);
 };
 Apl.prototype.importImage = function() {
-	fs.readdirSync(this.importRoot).forEach(function(file, idx) {
+	var files = [];
+
+	fs.readdirSync(this.importRoot).forEach(function(file) {
 		if (path.extname(file) != '.jpg' && path.extname(file) != '.JPG') {
 			return;
 		}
-
+		files.push(file);
+	});
+	
+	files.forEach(function(file, idx) {
 		var sourceImage = this.importRoot + file;
 
 		this.exif.getDate(sourceImage, function(date) {
@@ -155,7 +160,7 @@ Apl.prototype.importImage = function() {
 						   date);
 
 			if (this.sseClient != undefined) {
-				this.sseClient.send(idx + ' - complete');
+				this.sseClient.send(idx + ' / ' + files.length + ' - complete');
 			}
 		}.bind(this));
 	}.bind(this));
