@@ -4,6 +4,7 @@ var app = express();
 var fs = require('fs');
 var sqlite3 = require('sqlite3').verbose();
 var child_process = require('child_process');
+var sse = require('sse')
 
 var Database = function(dbFile) {
 	this.dbFileName = dbFile;
@@ -101,6 +102,14 @@ var Apl = function() {
 	var server = app.listen(3000, function () {
 		var host = server.address().address;
 		var port = server.address().port;
+
+		var sseServe = new sse(server);
+		sseServe.on('connection', function(client) {
+			setInterval(function() {
+				console.log('send');
+				client.send('hi there!');
+			}, 1000);
+		});
 		console.log('Example app listening at http://%s:%s', host, port);
 	});
 };
@@ -164,26 +173,38 @@ Apl.prototype.bind = function() {
 
 	app.use(express.static('public'));
 
-	app.get('/db.json', function (req, res) {
+	app.get('/db.json', function(req, res) {
 		this.db.getAll(function(rows) {
 			res.send(JSON.stringify(rows));
 		});
 	}.bind(this));
 
-	app.get('/import', function (req, res) {
+	app.get('/import', function(req, res) {
 		res.send("");
 		console.log('importimage');
 		this.importImage();
 	}.bind(this));
 
-	app.get('/status', function (req, res) {
+	app.get('/status', function(req, res) {
 		res.send(this.status);
 	}.bind(this));
+
+	app.get('sse', function(req, res) {
+		html = '<script>window.onload = function() {' +
+			'console.log("set sse");' +
+			'var es = new EventSource("/sse");' +
+			'es.onmessage = function (event) {' +
+			'console.log(event.data);' +
+			'};' +
+			'};</script>';
+		res.send(html);
+	});
 };
 
 
 var apl = new Apl();
 apl.bind();
+
 //apl.importImage();
 //db = new Database();
 //db.getAll();
