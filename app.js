@@ -129,7 +129,9 @@ Apl.prototype.importImage = function() {
 		files.push(file);
 	});
 	
-	files.forEach(function(file, idx) {
+	var idx = 0;
+
+	files.forEach(function(file) {
 		var sourceImage = this.importRoot + file;
 
 		this.exif.getDate(sourceImage, function(date) {
@@ -161,7 +163,7 @@ Apl.prototype.importImage = function() {
 
 			if (this.sseClient != undefined) {
 				this.sseClient.send(JSON.stringify(
-					{status: 'importing', complete: idx, total: files.length}));
+					{status: 'importing', complete: ++idx, total: files.length}));
 			}
 		}.bind(this));
 	}.bind(this));
